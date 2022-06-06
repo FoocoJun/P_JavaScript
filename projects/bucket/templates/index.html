@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta property="og:title" content="버켓하다"/>
+    <meta property="og:description" content="우리의 버켓리스트 : 버켓하다"/>
+    <meta property="og:image" content="https://ifh.cc/g/gdlXgL.jpg"/>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+
+    <title>인생 버킷리스트</title>
+
+    <style>
+        * {
+            font-family: 'Gowun Dodum', sans-serif;
+        }
+
+        .mypic {
+            width: 100%;
+            height: 400px;
+
+            background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://ifh.cc/g/gdlXgL.jpg');
+            background-position: center 55%;
+            background-size: cover;
+
+            color: white;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mypic > h1 {
+            font-size: 30px;
+        }
+
+        .mybox {
+            width: 95%;
+            max-width: 700px;
+            padding: 20px;
+            box-shadow: 0px 0px 10px 0px lightblue;
+            margin: 20px auto;
+        }
+
+        .mybucket {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mybucket > input {
+            width: 70%;
+        }
+
+        .mybox > li {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+
+            margin-bottom: 10px;
+            min-height: 48px;
+        }
+
+        .mybox > li > h2 {
+            max-width: 75%;
+            font-size: 20px;
+            font-weight: 500;
+            margin-right: auto;
+            margin-bottom: 0px;
+        }
+
+        .mybox > li > h2.done {
+            text-decoration: line-through
+        }
+        .dropdown-menu {
+            width: 400%;
+        }
+        .mycards {
+            width: 95%;
+            max-width: 700px;
+            margin: auto;
+        }
+
+    </style>
+    <script>
+        $(document).ready(function () {
+            show_bucket();
+        });
+
+        function show_bucket() {
+            $.ajax({
+                type: "GET",
+                url: "/bucket",
+                data: {},
+                success: function (response) {
+                    let rows = response['all_buckets']
+                    $('#bucket-list').empty()
+                    $('#complete-list').empty()
+
+                    for (i=0;i<rows.length;i++) {
+                        let bucket = rows[i]['bucket']
+                        let number = rows[i]['num']
+                        let done = rows[i]['done']
+
+                        if (done == 0) {
+                            let temp_html =
+                            `<li>
+                                <h2>✅ ${bucket}</h2>
+                                <button onClick="done_bucket(${number})" type="button" class="btn btn-outline-primary">완료!
+                                </button>
+                            </li>`
+                            $('#bucket-list').append(temp_html)
+                        }
+                        else if (done == 1) {
+                            let temp_html =
+                            `<li>
+                                <h2>✅ <span style="text-decoration:line-through">${bucket}</span></h2>
+                                <div class="dropdown">
+                                  <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                                    후기쓰기
+                                  </button>
+                                  <form class="dropdown-menu p-3">
+                                    <div class="mb-3">
+                                      <label for="date" class="form-label">완료 날짜</label>
+                                      <input type="date" class="form-control" id="date">
+                                    </div>
+                                    <div class="mb-3">
+                                      <label for="comment" class="form-label">즐거웠나요?</label>
+                                      <input type="text" class="form-control" id="comment" placeholder="Comment">
+                                    </div>
+                                    <button onClick="comp_bucket(${number})" type="submit" class="btn btn-primary">등록</button>
+                                  </form>
+                                </div>`
+
+                            $('#bucket-list').append(temp_html)
+                        }
+                        else {
+                            let date = rows[i]['date']
+                            let comment = rows[i]['comment']
+                            let temp_html =
+                            `<li>
+                                <h2>✅ ${bucket}</h2>
+                            </li>
+
+                            <div class="mycards" id="comment-list">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <blockquote class="blockquote mb-0">
+                                            <p>${comment}</p>
+                                            <footer class="blockquote-footer">${date}</footer>
+                                        </blockquote>
+                                    </div>
+                                </div>
+                            </div>
+                            `
+
+                            $('#complete-list').append(temp_html)
+
+                        }
+
+                    }
+                }
+            });
+        }
+
+        function save_bucket() {
+            let bucket = $('#bucket').val()
+            $.ajax({
+                type: "POST",
+                url: "/bucket",
+                data: {bucket_give: bucket},
+                success: function (response) {
+                    alert(response["msg"])
+                    window.location.reload()
+                }
+            });
+        }
+
+        function done_bucket(num) {
+            $.ajax({
+                type: "POST",
+                url: "/bucket/done",
+                data: {number_give: num},
+                success: function (response) {
+                    alert(response["msg"])
+                    window.location.reload()
+
+                }
+            });
+        }
+
+        function comp_bucket(num) {
+            let comp_date = $('#date').val()
+            let comp_comment = $('#comment').val()
+            $.ajax({
+                type: "POST",
+                url: "/bucket/comp",
+                data: {number_give: num, date_give:comp_date,comment_give:comp_comment},
+                success: function (response) {
+                    alert(response["msg"])
+
+                }
+            });
+        }
+
+
+    </script>
+</head>
+<body>
+<div class="mypic">
+    <h1>나의 버킷리스트</h1>
+</div>
+<div class="mybox">
+    <div class="mybucket">
+        <input id="bucket" class="form-control" type="text" placeholder="이루고 싶은 것을 입력하세요">
+        <button onclick="save_bucket()" type="button" class="btn btn-outline-primary">기록하기</button>
+    </div>
+</div>
+<div class="mybox" id="bucket-list">
+
+</div>
+<div class="mybox" id="complete-list">
+
+</div>
+
+</body>
+</html>
