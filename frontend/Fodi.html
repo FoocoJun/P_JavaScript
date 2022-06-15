@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>jQuery 연습하고 가기!</title>
+
+    <!-- jQuery를 import 합니다 -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <style type="text/css">
+        div.question-box {
+            margin: 10px 0 20px 0;
+        }
+
+        .bad {
+            color: red;
+        }
+    </style>
+
+    <script>
+
+        function q1() {
+            let words = $('#keywords').val()
+
+            $.ajax({
+                type: "GET",
+                url: "https://api.nal.usda.gov/fdc/v1/foods/search?api_key=dTTtB3bCrYbP4uRV8jRVhMpNwm6uSCXa7aXR9713&query=" + words,
+                data: {},
+                success: function (response) {
+                    let rows = response['foods']
+                    for (i=0;i<rows.length;i++) {
+                        //let food_Id =rows[i]['fdcId']
+                        let food_Name =rows[i]['description']
+                        for (j=0;i<rows[i]['foodNutrients'].length;j++) {
+                            if (rows[i]['foodNutrients'][j]['nutrientId']==1003 ){
+                                let protein_value = rows[i]['foodNutrients'][j]['value']
+                                if (protein_value>0) {
+                                    //console.log('FDC Id', food_Id)
+                                    console.log('음식명',food_Name)
+                                    console.log('단백질 함유량', protein_value, 'g')
+                                }
+                                else {
+                                    console.log('음식명',food_Name)
+                                    console.log('단백질 없어욧')
+                                    break
+                                }
+                            }
+                            else {
+                                break
+                            }
+
+                        }
+
+                    }
+
+
+
+                }
+
+
+            })
+// 여기에 코드를 입력하세요
+        }
+    </script>
+
+</head>
+
+<body>
+<h1>jQuery+Ajax의 조합을 연습하자!</h1>
+
+<hr/>
+
+<div class="question-box">
+    <h2>FDC Open API 이용하기</h2>
+    <p>식품 키워드를 입력해주세요</p>
+    <label>식품명 :</label>
+    <input type="text" id="keywords" placeholder="식품명을 입력하세요">
+    <button onclick="q1()">업데이트</button>
+    <ul id="names-q1">
+
+    </ul>
+</div>
+</body>
+
+</html>

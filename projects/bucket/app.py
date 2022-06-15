@@ -33,6 +33,12 @@ def bucket_done():
     db.buckets.update_one({'num':int(number_receive)},{'$set':{'done':1}})
     return jsonify({'msg': '버킷 완료!'})
 
+@app.route("/bucket/cancle", methods=["POST"])
+def bucket_cancle():
+    number_receive = request.form['number_give']
+    db.buckets.update_one({'num':int(number_receive)},{'$set':{'done':0}})
+    return jsonify({'msg': '취소되었습니다.'})
+
 @app.route("/bucket/comp", methods=["POST"])
 def bucket_comp():
     number_receive = request.form['number_give']

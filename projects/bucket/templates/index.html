@@ -85,9 +85,11 @@
         .mybox > li > h2.done {
             text-decoration: line-through
         }
+
         .dropdown-menu {
-            width: 400%;
+            width: 300%;
         }
+
         .mycards {
             width: 95%;
             max-width: 700px;
@@ -110,48 +112,52 @@
                     $('#bucket-list').empty()
                     $('#complete-list').empty()
 
-                    for (i=0;i<rows.length;i++) {
+                    for (i = 0; i < rows.length; i++) {
                         let bucket = rows[i]['bucket']
                         let number = rows[i]['num']
                         let done = rows[i]['done']
 
                         if (done == 0) {
                             let temp_html =
-                            `<li>
+                                `<li>
                                 <h2>✅ ${bucket}</h2>
                                 <button onClick="done_bucket(${number})" type="button" class="btn btn-outline-primary">완료!
                                 </button>
                             </li>`
                             $('#bucket-list').append(temp_html)
-                        }
-                        else if (done == 1) {
+                        } else if (done == 1) {
                             let temp_html =
-                            `<li>
+                                `<li>
                                 <h2>✅ <span style="text-decoration:line-through">${bucket}</span></h2>
-                                <div class="dropdown">
-                                  <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                                <div class="dropdown" style="text-align: right">
+                                    <button  onClick="cancle_bucket(${number})" type="button" class="btn btn-outline-danger">
+                                        취소
+                                    </button>
+
+                                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                                     후기쓰기
-                                  </button>
-                                  <form class="dropdown-menu p-3">
-                                    <div class="mb-3">
-                                      <label for="date" class="form-label">완료 날짜</label>
-                                      <input type="date" class="form-control" id="date">
-                                    </div>
-                                    <div class="mb-3">
-                                      <label for="comment" class="form-label">즐거웠나요?</label>
-                                      <input type="text" class="form-control" id="comment" placeholder="Comment">
-                                    </div>
-                                    <button onClick="comp_bucket(${number})" type="submit" class="btn btn-primary">등록</button>
-                                  </form>
+                                    </button>
+
+                                    <form class="dropdown-menu p-3">
+                                        <div class="mb-3">
+                                            <label for="date" class="form-label">완료 날짜</label>
+                                            <input type="date" class="form-control" id="date">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="comment" class="form-label">즐거웠나요?</label>
+                                            <input type="text" class="form-control" id="comment" placeholder="Comment">
+                                        </div>
+                                        <button onClick="comp_bucket(${number})" type="submit" class="btn btn-primary">등록</button>
+                                        <label>  추억은 등록 후 수정 할 수 없습니다. <span style="color: indianred">밥 사주고 문의하세요.</span></label>
+                                    </form>
                                 </div>`
 
                             $('#bucket-list').append(temp_html)
-                        }
-                        else {
+                        } else {
                             let date = rows[i]['date']
                             let comment = rows[i]['comment']
                             let temp_html =
-                            `<li>
+                                `<li>
                                 <h2>✅ ${bucket}</h2>
                             </li>
 
@@ -202,19 +208,36 @@
             });
         }
 
+        function cancle_bucket(num) {
+            $.ajax({
+                type: "POST",
+                url: "/bucket/cancle",
+                data: {number_give: num},
+                success: function (response) {
+                    alert(response["msg"])
+                    window.location.reload()
+
+                }
+            });
+        }
+
+
+
         function comp_bucket(num) {
             let comp_date = $('#date').val()
             let comp_comment = $('#comment').val()
             $.ajax({
                 type: "POST",
                 url: "/bucket/comp",
-                data: {number_give: num, date_give:comp_date,comment_give:comp_comment},
+                data: {number_give: num, date_give: comp_date, comment_give: comp_comment},
                 success: function (response) {
                     alert(response["msg"])
 
                 }
             });
         }
+
+
 
 
     </script>
